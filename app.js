@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require("express");
 const authRouter = require("./routes/authRoute");
+const projectRouter = require("./routes/projectRoute");
+
 const AppError = require("./utils/appError"); // ✅ import AppError
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -18,6 +20,8 @@ app.get("/", (req, res) => {
 
 // Auth routes
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/projects', projectRouter);
+
 
 // Handle unmatched routes (404)
 app.all(/.*/, (req, res, next) => {
