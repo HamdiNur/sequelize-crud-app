@@ -1,29 +1,32 @@
- require('dotenv').config({path:`${process.cwd()}/.env`})
-const express=require("express")
-const authRouter=require("./routes/authRoute")
-const app=express();
+require('dotenv').config();
+const express = require("express");
+const authRouter = require("./routes/authRoute");
+const AppError = require("./utils/appError"); // ✅ import AppError
+const globalErrorHandler = require('./controllers/errorController');
 
+const app = express();
 
 app.use(express.json());
 
-app.get("/",(req,res)=>{
- res.status(200).json({
-    status:'success',
-    message:'waaaaaw ! RestApi is working'
- })
-})
-//all routes will be here 
-app.use('/api/v1/auth',authRouter)
-
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'fail',
-    message: 'Route Not Found'
+// Test route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Rest API is working'
   });
 });
 
-const PORT=process.env.APP_PORT||3000
-app.listen(PORT,()=>{
-    console.log("server up is running up",PORT)
-})
+// Auth routes
+app.use('/api/v1/auth', authRouter);
 
+// Handle unmatched routes (404)
+app.all(/.*/, (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+});
+// Global error handler
+app.use(globalErrorHandler);
+
+const PORT = process.env.APP_PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
